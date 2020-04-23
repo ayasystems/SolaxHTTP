@@ -2,7 +2,7 @@
 SolaxHTTP domoticz plugin
 
 
-
+![Solax inverter](https://github.com/ayasystems/SolaxHTTP/raw/master/solax.jpg)
 
 
 
