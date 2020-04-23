@@ -4,7 +4,7 @@ SolaxHTTP domoticz plugin para su integración en domoticz
 
 ![Solax inverter](https://github.com/ayasystems/SolaxHTTP/raw/master/solax.jpg)
 
-
+![Domoticz_Solax_Plugin](https://github.com/ayasystems/SolaxHTTP/raw/master/domoticz_solax.jpg)
 
 ## Instalación
 
