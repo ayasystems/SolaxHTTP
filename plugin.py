@@ -5,7 +5,7 @@
  
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0" wikilink="https://github.com/ayasystems/SolaxPlugin" externallink="https://domotuto.com">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://domotuto.com">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         Will hit the supplied URL every 2 heartbeats in the request protocol.  Redirects are handled.
