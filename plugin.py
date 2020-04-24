@@ -5,10 +5,13 @@
  
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://domotuto.com">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
-        Will hit the supplied URL every 2 heartbeats in the request protocol.  Redirects are handled.
+        <h3>by @ea4gkq</h3>
+		<br/>
+		<a href="https://domotuto.com/integracion-del-inversor-solar-solax-boost-en-domoticz/">https://domotuto.com/integracion-del-inversor-solar-solax-boost-en-domoticz/</a>
+		<br/>
     </description>
     <params>
         <param field="Address" label="Solax IP" width="200px" required="true" default="5.8.8.8"/>
@@ -66,6 +69,7 @@ class SolaxHTTP:
     TEMP = ""
     FREQUENCY = ""
     GRID_W = ""	
+    ERROR_LEVEL = ""
 
     def __init__(self):
         return
@@ -85,19 +89,15 @@ class SolaxHTTP:
       createDevices(self,"TEMP")		 
       createDevices(self,"FREQUENCY")
       createDevices(self,"GRID_CURRENT")	  
-      try:
-        Domoticz.Error("onStart - try")	  
+      try:  
         if Parameters["Mode6"] == "": Parameters["Mode6"] = "-1"
         if Parameters["Mode6"] != "0":
             Domoticz.Error("if parameters mode 6: "+Parameters["Mode6"])	  
             Domoticz.Debugging(int(Parameters["Mode6"]))
             Domoticz.Error("DumpConfigToLog")	
             DumpConfigToLog()
-        Domoticz.Error("if parameters mode 1")	
-        if (Parameters["Mode1"].strip()  == "443"): self.sProtocol = "HTTPS"
-        Domoticz.Error("Address: "+Parameters["Address"])
-        Domoticz.Error("port: "+Parameters["Mode1"].strip())
-        Domoticz.Error("Address: "+Parameters["Address"].strip())		
+            self.ERROR_LEVEL = Parameters["Mode6"]
+        if (Parameters["Mode1"].strip()  == "443"): self.sProtocol = "HTTPS"		
         self.httpConn = Domoticz.Connection(Name=self.sProtocol+" Test", Transport="TCP/IP", Protocol=self.sProtocol, Address=Parameters["Address"].strip() , Port=Parameters["Mode1"].strip() )
         self.httpConn.Connect()
       except Exception as e:
@@ -121,7 +121,7 @@ class SolaxHTTP:
                        }
             Connection.Send(sendData)
         else:
-            Domoticz.Log("Failed to connect ("+str(Status)+") to: "+Parameters["Address"]+":"+Parameters["Mode1"]+" with error: "+Description)
+            Domoticz.Error("Failed to connect ("+str(Status)+") to: "+Parameters["Address"]+":"+Parameters["Mode1"]+" with error: "+Description)
 
     def onMessage(self, Connection, Data):
         DumpHTTPResponseToLog(Data)
@@ -289,7 +289,13 @@ def processResponse(self,httpResp):
     #TOTAL_ENERGY = ""
     stringData =  httpResp["Data"].decode("utf-8", "ignore")
     #Domoticz.Error(stringData)
-    json_object = json.loads(stringData) 
+    try:
+      json_object = json.loads(stringData)
+    except Exception as e:
+      Domoticz.Error("Error json parse: "+str(e))
+      if(self.ERROR_LEVEL=="-1"):
+        Domoticz.Error(str(stringData))	 
+      return	  
     self.S1_CURRENT = str(json_object['Data'][0])
  
     self.S2_CURRENT = str(json_object['Data'][1])
@@ -340,12 +346,10 @@ def processResponse(self,httpResp):
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
     UpdateDevice("GRID_CURRENT",  0, self.GRID_CURRENT)
-    #self.DAY_ENERGY = str(json_object['Body']['Data']['DAY_ENERGY']['Values']['1'])
-    #self.PAC = str(json_object['Body']['Data']['PAC']['Values']['1'])
-    #self.TOTAL_ENERGY = str(json_object['Body']['Data']['TOTAL_ENERGY']['Values']['1'])
-    Domoticz.Error(json.dumps(json_object))
-    #Domoticz.Error("PAC: "+self.PAC)
-    #Domoticz.Error("TOTAL_ENERGY: "+self.TOTAL_ENERGY)
+ 
+    if(self.ERROR_LEVEL=="-1"):
+       Domoticz.Error(json.dumps(json_object))
+ 
 def debugDevices(self,device):
     value = ""
     try:
