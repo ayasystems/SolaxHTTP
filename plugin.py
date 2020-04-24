@@ -5,7 +5,7 @@
  
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.1" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         <h3>by @ea4gkq</h3>
