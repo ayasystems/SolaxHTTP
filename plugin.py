@@ -409,4 +409,4 @@ def UpdateDevice(unitname, nValue, sValue):
       if iUnit>=0: # existe, actualizamos	
             if (Devices[iUnit].nValue != nValue) or (Devices[iUnit].sValue != sValue):
                 Devices[iUnit].Update(nValue=nValue, sValue=str(sValue))
-                Domoticz.Log("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[iUnit].Name+")")
+                Domoticz.Debug("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[iUnit].Name+")")
