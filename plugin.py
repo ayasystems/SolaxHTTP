@@ -5,19 +5,26 @@
  
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.1" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.2" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         <h3>by @ea4gkq</h3>
 		<br/>
 		<a href="https://domotuto.com/integracion-del-inversor-solar-solax-boost-en-domoticz/">https://domotuto.com/integracion-del-inversor-solar-solax-boost-en-domoticz/</a>
 		<br/>
+		Para la versión V2 necesitarás conectar tu Raspberry a la red que publica el inversor Solax_XXXXXX
     </description>
     <params>
         <param field="Address" label="Solax IP" width="200px" required="true" default="5.8.8.8"/>
         <param field="Mode1" label="Protocol" width="75px">
             <options>
                 <option label="HTTP" value="80"  default="true" />
+            </options>
+        </param>
+        <param field="Mode2" label="Version" width="75px">
+            <options>
+                <option label="V1" value="V1"  default="true" />
+                <option label="V2" value="V2"  default="true" />
             </options>
         </param>
         <param field="Mode6" label="Debug" width="150px">
@@ -58,6 +65,7 @@ class SolaxHTTP:
     runAgain = interval
     disconnectCount = 0
     sProtocol = "HTTP"
+    VERSION = "V2"
     S1_CURRENT = ""
     S2_CURRENT = ""
     S1_VOLTAGE = ""
@@ -97,7 +105,8 @@ class SolaxHTTP:
             Domoticz.Error("DumpConfigToLog")	
             DumpConfigToLog()
             self.ERROR_LEVEL = Parameters["Mode6"]
-        if (Parameters["Mode1"].strip()  == "443"): self.sProtocol = "HTTPS"		
+        if (Parameters["Mode1"].strip()  == "443"): self.sProtocol = "HTTPS"
+        if (Parameters["Mode2"].strip()  == "V1"): self.VERSION = "V1"	
         self.httpConn = Domoticz.Connection(Name=self.sProtocol+" Test", Transport="TCP/IP", Protocol=self.sProtocol, Address=Parameters["Address"].strip() , Port=Parameters["Mode1"].strip() )
         self.httpConn.Connect()
       except Exception as e:
@@ -111,14 +120,24 @@ class SolaxHTTP:
     def onConnect(self, Connection, Status, Description):
         if (Status == 0):
             Domoticz.Debug("Solax connected successfully.")
-            sendData = { 'Verb' : 'POST',
-                         'URL'  : '/?optType=ReadRealTimeData',
-                         'Headers' : { 'Content-Type': 'text/xml; charset=utf-8', \
-                                       'Connection': 'keep-alive', \
-                                       'Accept': 'Content-Type: text/html; charset=UTF-8', \
-                                       'Host': Parameters["Address"]+":"+Parameters["Mode1"], \
-                                       'User-Agent':'Domoticz/1.0' }
-                       }
+            if(self.VERSION=="V2"):
+             sendData = { 'Verb' : 'POST',
+                          'URL'  : '/?optType=ReadRealTimeData',
+                          'Headers' : { 'Content-Type': 'text/xml; charset=utf-8', \
+                                        'Connection': 'keep-alive', \
+                                        'Accept': 'Content-Type: text/html; charset=UTF-8', \
+                                        'Host': Parameters["Address"]+":"+Parameters["Mode1"], \
+                                        'User-Agent':'Domoticz/1.0' }
+                        }
+            else:
+             sendData = { 'Verb' : 'GET',
+                          'URL'  : '/api/realTimeData.htm',
+                          'Headers' : { 'Content-Type': 'text/xml; charset=utf-8', \
+                                        'Connection': 'keep-alive', \
+                                        'Accept': 'Content-Type: text/html; charset=UTF-8', \
+                                        'Host': Parameters["Address"]+":"+Parameters["Mode1"], \
+                                        'User-Agent':'Domoticz/1.0' }
+                        }
             Connection.Send(sendData)
         else:
             Domoticz.Error("Failed to connect ("+str(Status)+") to: "+Parameters["Address"]+":"+Parameters["Mode1"]+" with error: "+Description)
