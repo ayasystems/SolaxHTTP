@@ -308,6 +308,8 @@ def processResponse(self,httpResp):
     #TOTAL_ENERGY = ""
     stringData =  httpResp["Data"].decode("utf-8", "ignore")
     #Domoticz.Error(stringData)
+    if(self.VERSION=="V1"):
+     stringData = stringData.replace(',,',',null,').replace(',,',',null,')
     try:
       json_object = json.loads(stringData)
     except Exception as e:
