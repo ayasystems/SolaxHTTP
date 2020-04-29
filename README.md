@@ -6,6 +6,8 @@ SolaxHTTP domoticz plugin para su integración en domoticz
 
 ![Domoticz_Solax_Plugin](https://github.com/ayasystems/SolaxHTTP/raw/master/domoticz_solax.jpg)
 
+![Domoticz_Solax plugin domoticz Tutorial](https://domotuto.com/integracion-del-inversor-solar-solax-boost-en-domoticz/)
+
 ## Instalación
 
 1. Clona el repositorio dentro de tu carpeta de plugins de domoticz
