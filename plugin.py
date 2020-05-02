@@ -27,6 +27,12 @@
                 <option label="V2" value="V2"  default="true" />
             </options>
         </param>
+        <param field="Mode3" label="Update speed" width="75px">
+            <options>
+                <option label="Normal" value="Normal"/>
+                <option label="High" value="High"  default="true" />
+            </options>
+        </param>   
         <param field="Mode6" label="Debug" width="150px">
             <options>
                 <option label="None" value="0"  default="true" />
@@ -107,6 +113,7 @@ class SolaxHTTP:
             self.ERROR_LEVEL = Parameters["Mode6"]
         if (Parameters["Mode1"].strip()  == "443"): self.sProtocol = "HTTPS"
         if (Parameters["Mode2"].strip()  == "V1"): self.VERSION = "V1"	
+        if (Parameters["Mode3"].strip()  == "High"): Domoticz.Heartbeat(1)
         self.httpConn = Domoticz.Connection(Name=self.sProtocol+" Test", Transport="TCP/IP", Protocol=self.sProtocol, Address=Parameters["Address"].strip() , Port=Parameters["Mode1"].strip() )
         self.httpConn.Connect()
       except Exception as e:
