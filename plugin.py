@@ -2,10 +2,11 @@
 #
 # Author: @ea4gkq 2020
 # 
- 
+# 19/05/2020 
+# - Arreglado error cuando V es 0, error división por cero 
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.3" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.4" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         <h3>by @ea4gkq</h3>
@@ -351,8 +352,10 @@ def processResponse(self,httpResp):
 
     self.TO_GRID       = str(self.TO_GRID)
     self.FROM_GRID     = str(self.FROM_GRID)
-	
-    self.GRID_CURRENT  = json_object['Data'][10] / json_object['Data'][5]
+    if(json_object['Data'][5]>0):	       
+       self.GRID_CURRENT  = json_object['Data'][10] / json_object['Data'][5]
+    else:
+       self.GRID_CURRENT  = 0
     self.GRID_CURRENT  = round(self.GRID_CURRENT * -1 ,2)
     kwhdiario          = str(json_object['Data'][8]*1000)
     acumuladoKwh       = str(json_object['Data'][6])
