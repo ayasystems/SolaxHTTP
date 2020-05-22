@@ -2,11 +2,13 @@
 #
 # Author: @ea4gkq 2020
 # 
+# 22/05/2020
+# - Mejorada reconexión automática
 # 19/05/2020 
 # - Arreglado error cuando V es 0, error división por cero 
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.4" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.5" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         <h3>by @ea4gkq</h3>
@@ -149,7 +151,7 @@ class SolaxHTTP:
             Connection.Send(sendData)
         else:
             Domoticz.Error("Failed to connect ("+str(Status)+") to: "+Parameters["Address"]+":"+Parameters["Mode1"]+" with error: "+Description)
-
+            self.httpConn = None
     def onMessage(self, Connection, Data):
         DumpHTTPResponseToLog(Data)
    
