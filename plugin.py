@@ -73,6 +73,7 @@ class SolaxHTTP:
     interval = 2
     runAgain = interval
     disconnectCount = 0
+    connectedCount = 0
     sProtocol = "HTTP"
     VERSION = "V2"
     S1_CURRENT = ""
@@ -154,12 +155,18 @@ class SolaxHTTP:
             self.httpConn = None
     def onMessage(self, Connection, Data):
         DumpHTTPResponseToLog(Data)
-   
-        strData = Data["Data"].decode("utf-8", "ignore")
-        Status = int(Data["Status"])
-        LogMessage(strData)
-
+        try:
+            strData = Data["Data"].decode("utf-8", "ignore")
+            Status = int(Data["Status"])
+            LogMessage(strData)
+            Domoticz.Debug("Solax returned a status: "+str(Status))
+        except Exception as e:
+         Domoticz.Error("HTTP RESPONSE ERROR")
+         self.httpConn.Disconnect()
+         self.httpConn = None
+         return False
         if (Status == 200):
+            
             if ((self.disconnectCount & 1) == 1):
                 Domoticz.Log("Good Response received from Solax, Disconnecting.")
                 self.httpConn.Disconnect()
@@ -178,13 +185,17 @@ class SolaxHTTP:
                                        'Host': Parameters["Address"]+":"+Parameters["Mode1"], \
                                        'User-Agent':'Domoticz/1.0' },
                         }
-            Connection.Send(sendData)
+            #Connection.Send(sendData)
         elif (Status == 400):
             Domoticz.Error("Solax returned a Bad Request Error.")
+            self.httpConn.Disconnect()
+            self.httpConn = None
         elif (Status == 500):
             Domoticz.Error("Solax returned a Server Error.")
+            self.httpConn.Disconnect()
+            self.httpConn = None
         else:
-            Domoticz.Error("Solax returned a status: "+str(Status))
+            Domoticz.Debug("Solax returned a status: "+str(Status))
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Debug("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
@@ -194,11 +205,23 @@ class SolaxHTTP:
 
     def onHeartbeat(self):
         #Domoticz.Trace(True)
+        if(self.connectedCount>10):
+            self.connectedCount = 0
+            self.httpConn.Disconnect()
+            self.httpConn = None
+            
         if (self.httpConn != None and (self.httpConn.Connecting() or self.httpConn.Connected())):
+            Domoticz.Debug("self.connectedCount --> "+str(self.connectedCount))
+            Domoticz.Debug("self.httpConn.Connected() --> "+str(self.httpConn.Connected()))
+            if(self.httpConn.Connected()):
+                Domoticz.Debug("self.connectedCount = self.connectedCount +1 "+str(self.connectedCount))
+                self.connectedCount = self.connectedCount +1
+            Domoticz.Debug("self.httpConn.Connecting() --> "+str(self.httpConn.Connecting()))
             Domoticz.Debug("onHeartbeat called, Connection is alive.")
-	else:
+        else:
             self.runAgain = self.runAgain - 1
             if self.runAgain <= 0:
+                Domoticz.Debug("self.runAgain | self.httpConn -> "+str(self.httpConn))            
                 if (self.httpConn == None):
                     self.httpConn = Domoticz.Connection(Name=self.sProtocol+" Test", Transport="TCP/IP", Protocol=self.sProtocol, Address=Parameters["Address"], Port=Parameters["Mode1"])
                 self.httpConn.Connect()
@@ -379,7 +402,7 @@ def processResponse(self,httpResp):
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
     UpdateDevice("GRID_CURRENT",  0, self.GRID_CURRENT)
- 
+    self.connectedCount = 0
     if(self.ERROR_LEVEL=="-1"):
        Domoticz.Error(json.dumps(json_object))
  
