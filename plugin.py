@@ -196,8 +196,7 @@ class SolaxHTTP:
         #Domoticz.Trace(True)
         if (self.httpConn != None and (self.httpConn.Connecting() or self.httpConn.Connected())):
             Domoticz.Debug("onHeartbeat called, Connection is alive.")
-            self.httpConn.Disconnect()
-        else:
+	else:
             self.runAgain = self.runAgain - 1
             if self.runAgain <= 0:
                 if (self.httpConn == None):
