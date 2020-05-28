@@ -2,13 +2,23 @@
 #
 # Author: @ea4gkq 2020
 # 
+# 28/05/2020
+# Añadido dummy con valor medio de Grid de las últimas 30 muestras
+# 22/05/2020
+# - Mejorada reconexión automática
+# 19/05/2020 
+# - Arreglado error cuando V es 0, error división por cero 
+ # Integración regulador solar solax en domoticz
+#
+# Author: @ea4gkq 2020
+# 
 # 22/05/2020
 # - Mejorada reconexión automática
 # 19/05/2020 
 # - Arreglado error cuando V es 0, error división por cero 
  
 """
-<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.5" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
+<plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.6" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
         <h2>Solax HTTP Pluging</h2><br/>
         <h3>by @ea4gkq</h3>
@@ -67,6 +77,9 @@ try:
  import re
 except Exception as e:
  errmsg += " re import error: "+str(e)
+from random import seed
+from random import gauss
+from functools import reduce
 
 class SolaxHTTP:
     httpConn = None
@@ -88,7 +101,10 @@ class SolaxHTTP:
     FREQUENCY = ""
     GRID_W = ""	
     ERROR_LEVEL = ""
-
+    listGrid = [] 
+    maxGridList = 30
+    avgGrid = 0
+    
     def __init__(self):
         return
 
@@ -105,7 +121,8 @@ class SolaxHTTP:
       createDevices(self,"FROM_GRID")	 
       createDevices(self,"FV_POWER")		 
       createDevices(self,"TEMP")		 
-      createDevices(self,"FREQUENCY")
+      createDevices(self,"FREQUENCY") 
+      createDevices(self,"AVGGRID")
       createDevices(self,"GRID_CURRENT")	  
       try:  
         if Parameters["Mode6"] == "": Parameters["Mode6"] = "-1"
@@ -127,7 +144,13 @@ class SolaxHTTP:
 
     def onStop(self):
         Domoticz.Log("onStop - Plugin is stopping.")
-
+    def Average(self):
+        
+        if(len(self.listGrid)>self.maxGridList):
+            self.listGrid.pop(0)
+        Domoticz.Debug("List values: "+str(self.listGrid))    
+        self.avgGrid = reduce(lambda a,b: a + b, self.listGrid) / len(self.listGrid)
+        self.avgGrid = round(self.avgGrid,0)
     def onConnect(self, Connection, Status, Description):
         if (Status == 0):
             Domoticz.Debug("Solax connected successfully.")
@@ -289,6 +312,7 @@ def DumpConfigToLog():
 
 def createDevices(self,unitname):
       OptionsSensor = {"Custom": "1;Hz"}
+      OptionsSensorAVG = {"Custom": "1;w"}
       iUnit = -1
       for Device in Devices:
        try:
@@ -328,7 +352,9 @@ def createDevices(self,unitname):
          if(unitname=="TEMP"):
           Domoticz.Device(Name=unitname, Unit=iUnit,TypeName="Temperature",Used=1,DeviceID=unitname).Create()		 
          if(unitname=="FREQUENCY"):		
-          Domoticz.Device(Name=unitname, Unit=iUnit,TypeName='Custom',Options=OptionsSensor,Used=1,DeviceID=unitname).Create()		 
+          Domoticz.Device(Name=unitname, Unit=iUnit,TypeName='Custom',Options=OptionsSensor,Used=1,DeviceID=unitname).Create()	
+         if(unitname=="AVGGRID"):		
+          Domoticz.Device(Name=unitname, Unit=iUnit,TypeName='Custom',Options=OptionsSensorAVG,Used=1,DeviceID=unitname).Create()	          
          if(unitname=="GRID_CURRENT"):
           Domoticz.Device(Name=unitname, Unit=iUnit,TypeName="Current (Single)",Used=1,DeviceID=unitname).Create()
         except Exception as e:
@@ -377,6 +403,11 @@ def processResponse(self,httpResp):
 
     self.TO_GRID       = str(self.TO_GRID)
     self.FROM_GRID     = str(self.FROM_GRID)
+    
+    self.listGrid.append(json_object['Data'][10]*-1)
+    Domoticz.Debug("List: "+str(self.listGrid))
+    self.Average()
+    Domoticz.Debug("AVG Grid: "+str(round(self.avgGrid,0)))
     if(json_object['Data'][5]>0):	       
        self.GRID_CURRENT  = json_object['Data'][10] / json_object['Data'][5]
     else:
@@ -401,6 +432,7 @@ def processResponse(self,httpResp):
     UpdateDevice("FV_POWER",      0, acumuladoKwh+";"+kwhdiario)
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
+    UpdateDevice("AVGGRID",       0, self.avgGrid)
     UpdateDevice("GRID_CURRENT",  0, self.GRID_CURRENT)
     self.connectedCount = 0
     if(self.ERROR_LEVEL=="-1"):
