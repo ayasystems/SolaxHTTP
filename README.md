@@ -42,7 +42,9 @@ git pull
 sudo systemctl start domoticz
 ```
  
+## Firmware modificado
 
+Hay una versión de firmware modificado que permite conexión directa al pocket wifi, más información aquí -> https://blog.chrisoft.io/2021/02/14/firmwares-modificados-para-solax-pocket-wifi-v2/
 
 
 
