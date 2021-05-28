@@ -1,7 +1,7 @@
 # SolaxHTTP
 SolaxHTTP domoticz plugin para su integración en domoticz
 
-Guia:
+
 [Información](https://github.com/ayasystems/SolaxHTTP#informaci%C3%B3n)
 
 [Instalación](https://github.com/ayasystems/SolaxHTTP#instalaci%C3%B3n)
