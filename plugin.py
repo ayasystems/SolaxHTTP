@@ -2,21 +2,17 @@
 #
 # Author: @ea4gkq 2020
 # 
+# 07/10/2021
+# - Corregido pico negativo cuando el inversor deja de generar AC
 # 28/05/2020
-# Añadido dummy con valor medio de Grid de las últimas 30 muestras
+# - Añadido dummy con valor medio de Grid de las últimas 30 muestras
 # 22/05/2020
 # - Mejorada reconexión automática
 # 19/05/2020 
 # - Arreglado error cuando V es 0, error división por cero 
  # Integración regulador solar solax en domoticz
 #
-# Author: @ea4gkq 2020
-# 
-# 22/05/2020
-# - Mejorada reconexión automática
-# 19/05/2020 
-# - Arreglado error cuando V es 0, error división por cero 
- 
+
 """
 <plugin key="SolaxHTTP" name="Solax HTTP" author="EA4GKQ" version="1.0.7" wikilink="https://github.com/ayasystems/SolaxHTTP" externallink="https://www.solaxpower.com/x1-boost/">
     <description>
@@ -429,7 +425,8 @@ def processResponse(self,httpResp):
     UpdateDevice("S2_POWER",      0, self.S2_POWER)
     UpdateDevice("TO_GRID",       0, self.TO_GRID)
     UpdateDevice("FROM_GRID",     0, self.FROM_GRID)
-    UpdateDevice("FV_POWER",      0, acumuladoKwh+";"+kwhdiario)
+    if(json_object['Data'][6]>0):
+      UpdateDevice("FV_POWER",      0, acumuladoKwh+";"+kwhdiario)
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
     UpdateDevice("AVGGRID",       0, self.avgGrid)
