@@ -425,7 +425,7 @@ def processResponse(self,httpResp):
     UpdateDevice("S2_POWER",      0, self.S2_POWER)
     UpdateDevice("TO_GRID",       0, self.TO_GRID)
     UpdateDevice("FROM_GRID",     0, self.FROM_GRID)
-    if(json_object['Data'][6]>0):
+    if(json_object[acumuladoKwh>0 AND kwhdiario > 0):
       UpdateDevice("FV_POWER",      0, acumuladoKwh+";"+kwhdiario)
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
