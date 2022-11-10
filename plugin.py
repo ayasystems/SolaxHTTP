@@ -410,7 +410,7 @@ def processResponse(self,httpResp):
        self.GRID_CURRENT  = 0
     self.GRID_CURRENT  = round(self.GRID_CURRENT * -1 ,2)
     kwhdiario          = json_object['Data'][8]*1000
-    acumuladoKwh       = (json_object['Data'][6]
+    acumuladoKwh       = json_object['Data'][6]
 
     self.TEMP          = str(json_object['Data'][7])
 	 
