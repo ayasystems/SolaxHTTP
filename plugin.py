@@ -409,8 +409,8 @@ def processResponse(self,httpResp):
     else:
        self.GRID_CURRENT  = 0
     self.GRID_CURRENT  = round(self.GRID_CURRENT * -1 ,2)
-    kwhdiario          = str(json_object['Data'][8]*1000)
-    acumuladoKwh       = str(json_object['Data'][6])
+    kwhdiario          = json_object['Data'][8]*1000
+    acumuladoKwh       = (json_object['Data'][6]
 
     self.TEMP          = str(json_object['Data'][7])
 	 
@@ -425,7 +425,7 @@ def processResponse(self,httpResp):
     UpdateDevice("S2_POWER",      0, self.S2_POWER)
     UpdateDevice("TO_GRID",       0, self.TO_GRID)
     UpdateDevice("FROM_GRID",     0, self.FROM_GRID)
-    if(json_object[acumuladoKwh>0 AND kwhdiario > 0):
+    if(acumuladoKwh>0 AND kwhdiario > 0):
       UpdateDevice("FV_POWER",      0, acumuladoKwh+";"+kwhdiario)
     UpdateDevice("TEMP",          0, self.TEMP)
     UpdateDevice("FREQUENCY",     0, self.FREQUENCY)
